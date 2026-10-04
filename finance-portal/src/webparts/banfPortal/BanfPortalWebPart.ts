@@ -1,91 +1,42 @@
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import { Version } from '@microsoft/sp-core-library';
-import {
-  type IPropertyPaneConfiguration,
-  PropertyPaneTextField
-} from '@microsoft/sp-property-pane';
+import { type IPropertyPaneConfiguration, PropertyPaneTextField } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
 import * as strings from 'BanfPortalWebPartStrings';
+import { BanfService } from '../../services/BanfService';
 import BanfPortal from './components/BanfPortal';
 import { IBanfPortalProps } from './components/IBanfPortalProps';
 
 export interface IBanfPortalWebPartProps {
-  description: string;
+  /**
+   * Absolute URL der Website mit den BANF-Listen. Leer = aktuelle Website.
+   * Nötig, wenn das Webpart als Teams-Tab in einem anderen Team läuft.
+   */
+  listenWebUrl: string;
 }
 
 export default class BanfPortalWebPart extends BaseClientSideWebPart<IBanfPortalWebPartProps> {
-
-  private _isDarkTheme: boolean = false;
-  private _environmentMessage: string = '';
+  private _service: BanfService | undefined;
+  private _serviceUrl: string | undefined;
 
   public render(): void {
-    const element: React.ReactElement<IBanfPortalProps> = React.createElement(
-      BanfPortal,
-      {
-        description: this.properties.description,
-        isDarkTheme: this._isDarkTheme,
-        environmentMessage: this._environmentMessage,
-        userDisplayName: this.context.pageContext.user.displayName
-      }
-    );
+    const url = (this.properties.listenWebUrl || '').trim();
+    if (!this._service || this._serviceUrl !== url) {
+      this._service = new BanfService(this.context, url || undefined);
+      this._serviceUrl = url;
+    }
 
+    const element: React.ReactElement<IBanfPortalProps> = React.createElement(BanfPortal, { service: this._service });
     ReactDom.render(element, this.domElement);
   }
 
-  protected onInit(): Promise<void> {
-    return this._getEnvironmentMessage().then(message => {
-      this._environmentMessage = message;
-    });
-  }
-
-
-
-  private _getEnvironmentMessage(): Promise<string> {
-    if (!!this.context.sdks.microsoftTeams) { // running in Teams, office.com or Outlook
-      return this.context.sdks.microsoftTeams.teamsJs.app.getContext()
-        .then(context => {
-          let environmentMessage: string = '';
-          switch (context.app.host.name) {
-            case 'Office': // running in Office
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentOffice : strings.AppOfficeEnvironment;
-              break;
-            case 'Outlook': // running in Outlook
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentOutlook : strings.AppOutlookEnvironment;
-              break;
-            case 'Teams': // running in Teams
-            case 'TeamsModern':
-              environmentMessage = this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentTeams : strings.AppTeamsTabEnvironment;
-              break;
-            default:
-              environmentMessage = strings.UnknownEnvironment;
-          }
-
-          return environmentMessage;
-        });
-    }
-
-    return Promise.resolve(this.context.isServedFromLocalhost ? strings.AppLocalEnvironmentSharePoint : strings.AppSharePointEnvironment);
-  }
-
   protected onThemeChanged(currentTheme: IReadonlyTheme | undefined): void {
-    if (!currentTheme) {
-      return;
+    if (currentTheme && currentTheme.semanticColors) {
+      this.domElement.style.setProperty('--bodyText', currentTheme.semanticColors.bodyText || null);
     }
-
-    this._isDarkTheme = !!currentTheme.isInverted;
-    const {
-      semanticColors
-    } = currentTheme;
-
-    if (semanticColors) {
-      this.domElement.style.setProperty('--bodyText', semanticColors.bodyText || null);
-      this.domElement.style.setProperty('--link', semanticColors.link || null);
-      this.domElement.style.setProperty('--linkHovered', semanticColors.linkHovered || null);
-    }
-
   }
 
   protected onDispose(): void {
@@ -96,19 +47,25 @@ export default class BanfPortalWebPart extends BaseClientSideWebPart<IBanfPortal
     return Version.parse('1.0');
   }
 
+  protected get disableReactivePropertyChanges(): boolean {
+    // URL erst beim Übernehmen anwenden, nicht bei jedem Tastendruck neu laden.
+    return true;
+  }
+
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
     return {
       pages: [
         {
-          header: {
-            description: strings.PropertyPaneDescription
-          },
+          header: { description: strings.PropertyPaneDescription },
           groups: [
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('description', {
-                  label: strings.DescriptionFieldLabel
+                PropertyPaneTextField('listenWebUrl', {
+                  label: strings.ListenWebUrlFieldLabel,
+                  description: strings.ListenWebUrlFieldDescription,
+                  onGetErrorMessage: (wert: string) =>
+                    !wert || /^https:\/\/[^/]+\.sharepoint\.com\/.+/i.test(wert.trim()) ? '' : strings.ListenWebUrlFieldError
                 })
               ]
             }

@@ -17,12 +17,15 @@
 
   "preconfiguredEntries": [{
     "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Advanced
-    "group": { "default": "Advanced" },
-    "title": { "default": "BanfPortal" },
-    "description": { "default": "BanfPortal description" },
-    "officeFabricIconFontName": "Page",
+    "group": { "default": "Advanced", "de-de": "Erweitert" },
+    "title": { "default": "Purchase requisitions (BANF)", "de-de": "Bestellanforderungen (BANF)" },
+    "description": {
+      "default": "Create, track and export purchase requisitions",
+      "de-de": "Bestellanforderungen erfassen, verfolgen und exportieren"
+    },
+    "officeFabricIconFontName": "ShoppingCart",
     "properties": {
-      "description": "BanfPortal"
+      "listenWebUrl": ""
     }
   }]
 }

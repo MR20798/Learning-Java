@@ -20,7 +20,8 @@ const banf: IBanf = {
   aktuelleStufe: '',
   aktuellerFreigeber: undefined,
   eingereichtAm: '2026-10-01T08:15:00Z',
-  freigegebenAm: '2026-10-02T09:00:00Z'
+  freigegebenAm: '2026-10-02T09:00:00Z',
+  verlauf: []
 };
 
 describe('CSV-Export', () => {

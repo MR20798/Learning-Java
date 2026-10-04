@@ -8,7 +8,7 @@
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
     "developer": {
-      "name": "",
+      "name": "VX Instruments",
       "websiteUrl": "",
       "privacyUrl": "",
       "termsOfUseUrl": "",
@@ -16,10 +16,10 @@
     },
     "metadata": {
       "shortDescription": {
-        "default": "banf-portal description"
+        "default": "BANF-Portal: Bestellanforderungen mit Freigabe-Workflow"
       },
       "longDescription": {
-        "default": "banf-portal description"
+        "default": "Erfassung von Bestellanforderungen in SharePoint und Teams. Freigabe nach Kostenstelle und Betrag über Power Automate (Approvals), Export für die Buchhaltung."
       },
       "screenshotPaths": [],
       "videoUrl": "",
@@ -27,8 +27,8 @@
     },
     "features": [
       {
-        "title": "banf-portal Feature",
-        "description": "The feature that activates elements of the banf-portal solution.",
+        "title": "BANF-Portal",
+        "description": "Stellt das Webpart \"Bestellanforderungen (BANF)\" bereit.",
         "id": "cc5ed55e-d72c-420f-9582-5ad364ad9d6d",
         "version": "1.0.0.0"
       }

@@ -1,29 +1,123 @@
 .banfPortal {
-  overflow: hidden;
   padding: 1em;
   color: "[theme:bodyText, default: #323130]";
   color: var(--bodyText);
 }
 
-.welcome {
-  text-align: center;
+.inhalt {
+  margin-top: 16px;
 }
 
-.welcomeImage {
-  width: 100%;
+.formular {
+  max-width: 960px;
+}
+
+.feldBreit { flex: 1 1 260px; min-width: 200px; }
+.feldMittelBreit { flex: 1 1 240px; min-width: 200px; }
+.feldMittel { width: 160px; }
+.feldSchmal { width: 90px; }
+
+.positionZeile {
+  padding-bottom: 4px;
+  border-bottom: 1px solid "[theme:neutralLighter, default: #f3f2f1]";
+}
+
+.positionWert {
+  width: 110px;
+  text-align: right;
+  line-height: 32px;
+  font-variant-numeric: tabular-nums;
+}
+
+.summen {
   max-width: 420px;
-}
+  margin-left: auto;
 
-.links {
-  a {
-    text-decoration: none;
-    color: "[theme:link, default:#03787c]";
-    color: var(--link); // note: CSS Custom Properties support is limited to modern browsers only
-
-    &:hover {
-      text-decoration: underline;
-      color: "[theme:linkHovered, default: #014446]";
-      color: var(--linkHovered); // note: CSS Custom Properties support is limited to modern browsers only
-    }
+  > div {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    font-variant-numeric: tabular-nums;
   }
 }
+
+.summeBrutto {
+  font-weight: 600;
+  border-top: 1px solid "[theme:neutralTertiary, default: #a19f9d]";
+}
+
+.fehlerText {
+  color: "[theme:errorText, default: #a4262c]";
+  font-size: 12px;
+}
+
+.hinweis {
+  color: "[theme:neutralSecondary, default: #605e5c]";
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.freigabeweg,
+.verlauf {
+  margin: 0;
+  padding-left: 20px;
+
+  li { margin-bottom: 6px; }
+}
+
+.uebersprungen {
+  color: "[theme:neutralTertiary, default: #a19f9d]";
+  text-decoration: line-through;
+
+  .hinweis { text-decoration: none; }
+}
+
+.leer {
+  display: block;
+  padding: 24px 0;
+  color: "[theme:neutralSecondary, default: #605e5c]";
+}
+
+.zahl {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabelle {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 4px 6px;
+    border-bottom: 1px solid "[theme:neutralLighter, default: #f3f2f1]";
+    text-align: left;
+    vertical-align: top;
+  }
+}
+
+.eigenschaften {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0;
+
+  dt { font-weight: 600; }
+  dd { margin: 0; }
+}
+
+.begruendung {
+  white-space: pre-wrap;
+}
+
+.status {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.statusNeutral { background: #edebe9; color: #323130; }
+.statusOffen { background: #fff4ce; color: #5c4400; }
+.statusOk { background: #dff6dd; color: #0b5a08; }
+.statusFehler { background: #fde7e9; color: #a4262c; }

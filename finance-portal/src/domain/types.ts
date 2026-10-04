@@ -48,6 +48,11 @@ export interface IFreigabestufe {
   aktiv: boolean;
 }
 
+/**
+ * Abwesenheitsvertretung. In SharePoint ist der Freigeber immer der Ersteller
+ * des Eintrags ("Erstellt von"), damit niemand sich selbst als Vertreter
+ * eines anderen eintragen kann.
+ */
 export interface IVertretung {
   freigeber: IPerson;
   vertreter: IPerson;
@@ -92,12 +97,13 @@ export interface IBanf {
   aktuellerFreigeber: IPerson | undefined;
   eingereichtAm: string;
   freigegebenAm: string;
+  verlauf: IVerlaufEintrag[];
 }
 
-export type FreigabeEntscheidung = 'Genehmigt' | 'Abgelehnt' | 'Übersprungen';
+/** Eintrag im Freigabeverlauf, vom Flow im Feld "VerlaufJson" fortgeschrieben. */
+export type FreigabeEntscheidung = 'Eingereicht' | 'Genehmigt' | 'Abgelehnt' | 'Übersprungen' | 'Fehler';
 
-export interface IFreigabeProtokollEintrag {
-  banfId: number;
+export interface IVerlaufEintrag {
   stufe: string;
   freigeber: IPerson;
   entscheidung: FreigabeEntscheidung;
