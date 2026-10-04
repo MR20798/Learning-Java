@@ -25,7 +25,7 @@ export const BanfDetails: React.FC<IBanfDetailsProps> = ({ banf, onAlsVorlage, o
     <Panel isOpen type={PanelType.medium} headerText={`${banf.nummer} – ${banf.titel}`} onDismiss={onSchliessen}
       closeButtonAriaLabel="Schließen" isLightDismiss>
       <Stack tokens={{ childrenGap: 10 }}>
-        <StatusBadge status={banf.status} />
+        <div><StatusBadge status={banf.status} /></div>
         <dl className={styles.eigenschaften}>
           <dt>Antragsteller</dt><dd>{banf.antragsteller.displayName}</dd>
           <dt>Kostenstelle</dt><dd>{banf.kostenstelle}</dd>
@@ -39,6 +39,7 @@ export const BanfDetails: React.FC<IBanfDetailsProps> = ({ banf, onAlsVorlage, o
         <Text className={styles.begruendung}>{banf.begruendung}</Text>
 
         <Separator alignContent="start">Positionen</Separator>
+        <div className={styles.tabelleRahmen}>
         <table className={styles.tabelle}>
           <thead>
             <tr><th>Pos.</th><th>Bezeichnung</th><th>Menge</th><th>Einzelpreis</th><th>MwSt</th><th>Wert netto</th></tr>
@@ -55,6 +56,7 @@ export const BanfDetails: React.FC<IBanfDetailsProps> = ({ banf, onAlsVorlage, o
             ))}
           </tbody>
         </table>
+        </div>
         <div className={styles.summen}>
           <div><span>Summe netto</span><span>{formatEuro(banf.summeNettoCent)}</span></div>
           <div className={styles.summeBrutto}><span>Summe brutto</span><span>{formatEuro(banf.summeBruttoCent)}</span></div>

@@ -108,7 +108,7 @@ const BanfPortal: React.FC<IBanfPortalProps> = ({ service }) => {
 
   return (
     <section className={styles.banfPortal}>
-      <Stack horizontal horizontalAlign="space-between" verticalAlign="center">
+      <Stack horizontal wrap horizontalAlign="space-between" verticalAlign="center" tokens={{ childrenGap: 8 }}>
         <Text variant="xLarge">Bestellanforderungen</Text>
         <CommandBarButton iconProps={{ iconName: 'Refresh' }} text="Aktualisieren" onClick={aktualisieren} />
       </Stack>

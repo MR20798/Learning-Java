@@ -36,6 +36,7 @@
   > div {
     display: flex;
     justify-content: space-between;
+    gap: 16px;
     padding: 2px 0;
     font-variant-numeric: tabular-nums;
   }
@@ -81,6 +82,14 @@
 .zahl {
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+.tabelleRahmen {
+  overflow-x: auto;
+}
+
+.knopf {
+  flex-shrink: 0;
 }
 
 .tabelle {

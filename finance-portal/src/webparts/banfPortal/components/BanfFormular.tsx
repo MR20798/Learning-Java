@@ -195,8 +195,8 @@ export const BanfFormular: React.FC<IBanfFormularProps> = ({ stammdaten, benutze
       {sendeFehler && <MessageBar messageBarType={MessageBarType.error}>{sendeFehler}</MessageBar>}
       {!istGueltig(fehler) && <MessageBar messageBarType={MessageBarType.warning}>Bitte die markierten Angaben prüfen.</MessageBar>}
 
-      <Stack horizontal tokens={{ childrenGap: 8 }} verticalAlign="center">
-        <PrimaryButton text="Zur Freigabe einreichen" disabled={sendet} onClick={einreichen} />
+      <Stack horizontal wrap tokens={{ childrenGap: 8 }} verticalAlign="center">
+        <PrimaryButton text="Zur Freigabe einreichen" className={styles.knopf} disabled={sendet} onClick={einreichen} />
         <DefaultButton text="Verwerfen" disabled={sendet} onClick={() => { setWerte(ausVorlage(undefined)); setAnhaenge([]); setFehler({}); }} />
         {sendet && <Spinner size={SpinnerSize.small} label="Wird gespeichert …" labelPosition="right" />}
       </Stack>
