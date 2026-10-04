@@ -36,7 +36,7 @@ describe('CSV-Export', () => {
 
   it('erzeugt eine Zeile je Position mit BOM und CRLF', () => {
     const csv = erzeugeCsv([banf]);
-    expect(csv.charAt(0)).toBe('﻿');
+    expect(csv.charAt(0)).toBe('\uFEFF');
     const zeilen = csv.substring(1).split('\r\n');
     expect(zeilen).toHaveLength(4); // Kopf, 2 Positionen, abschließende Leerzeile
     expect(zeilen[3]).toBe('');

@@ -79,5 +79,5 @@ export function erzeugeCsv(banfs: IBanf[]): string {
     });
   }
 
-  return '﻿' + zeilen.join('\r\n') + '\r\n';
+  return '\uFEFF' + zeilen.join('\r\n') + '\r\n';
 }
