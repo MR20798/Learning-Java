@@ -2,176 +2,51 @@
   "title": "Prozess Bestellanforderung (BANF)",
   "process_id": "VXI-VP-BANF",
   "steps": [
-    {
-      "type": "start",
-      "text": "Bedarf entsteht"
-    },
-    {
-      "n": "1",
-      "type": "activity",
-      "text": "BANF im Portal erfassen: Positionen, Kostenstelle, Lieferant, Begründung, Angebot",
+    { "type": "start", "text": "Bedarf entsteht" },
+
+    { "n": "1", "type": "activity",
+      "text": "BANF im Portal erfassen (Positionen, Kostenstelle, Lieferant, Angebot)",
       "input": "BANF-Portal (SharePoint / Teams), Angebot",
-      "R": "Antragst.",
-      "output": "Eintrag Liste BanfEingang"
-    },
-    {
-      "n": "2",
-      "type": "activity",
-      "text": "Summen nachrechnen, BANF anlegen, Freigabeweg ermitteln (Vertretung, Vier-Augen-Prinzip)",
-      "input": "Listen Kostenstellen, Freigabestufen, Vertretungen",
-      "R": "Workflow",
-      "I": "Antragst.",
-      "output": "BANF-Nr., Liste Bestellanforderungen"
-    },
-    {
-      "n": "3",
-      "type": "activity",
-      "text": "Freigabe anfordern bei Kostenstellenverantwortlicher/m",
+      "R": "Antragsteller",
+      "output": "BANF-Entwurf" },
+
+    { "n": "2", "type": "activity",
+      "text": "Summen prüfen und Freigabeweg ermitteln",
+      "input": "Freigaberegeln: Kostenstelle; ab 5.000 € Bereichsleitung; ab 25.000 € Geschäftsführung; Vertretungen",
+      "R": "Workflow", "I": "Antragsteller",
+      "output": "BANF-Nr., Freigabeweg" },
+
+    { "n": "3", "type": "activity",
+      "text": "Freigabe der nächsten Stufe anfordern",
       "input": "Teams-App Genehmigungen, Outlook",
-      "R": "Workflow",
-      "I": "Antragst.",
-      "output": "Freigabeverlauf",
-      "A": "KST-Verantw."
-    },
-    {
-      "n": "4",
-      "type": "decision",
-      "text": "Genehmigt?",
-      "R": "KST-Verantw.",
-      "durchgang_label": "Ja",
-      "routes": [
-        {
-          "label": "Nein",
-          "to": "a4"
-        }
-      ]
-    },
-    {
-      "n": "a4",
-      "type": "subprocess",
-      "lane": "rechts",
-      "text": "Ablehnung: Status Abgelehnt, Mail an Antragsteller",
-      "R": "Workflow"
-    },
-    {
-      "n": "5",
-      "type": "decision",
-      "text": "Netto unter 5.000 €?",
-      "R": "Workflow",
-      "durchgang_label": "Nein",
-      "routes": [
-        {
-          "label": "Ja",
-          "to": "11"
-        }
-      ]
-    },
-    {
-      "n": "6",
-      "type": "activity",
-      "text": "Freigabe anfordern bei Bereichsleitung",
-      "input": "Teams-App Genehmigungen, Outlook",
-      "R": "Workflow",
-      "I": "Antragst.",
-      "output": "Freigabeverlauf",
-      "A": "BL"
-    },
-    {
-      "n": "7",
-      "type": "decision",
-      "text": "Genehmigt?",
-      "R": "BL",
-      "durchgang_label": "Ja",
-      "routes": [
-        {
-          "label": "Nein",
-          "to": "a7"
-        }
-      ]
-    },
-    {
-      "n": "a7",
-      "type": "subprocess",
-      "lane": "rechts",
-      "text": "Ablehnung: Status Abgelehnt, Mail an Antragsteller",
-      "R": "Workflow"
-    },
-    {
-      "n": "8",
-      "type": "decision",
-      "text": "Netto unter 25.000 €?",
-      "R": "Workflow",
-      "durchgang_label": "Nein",
-      "routes": [
-        {
-          "label": "Ja",
-          "to": "11"
-        }
-      ]
-    },
-    {
-      "n": "9",
-      "type": "activity",
-      "text": "Freigabe anfordern bei Geschäftsführung",
-      "input": "Teams-App Genehmigungen, Outlook",
-      "R": "Workflow",
-      "I": "Antragst.",
-      "output": "Freigabeverlauf",
-      "A": "GF"
-    },
-    {
-      "n": "10",
-      "type": "decision",
-      "text": "Genehmigt?",
-      "R": "GF",
-      "durchgang_label": "Ja",
-      "routes": [
-        {
-          "label": "Nein",
-          "to": "a10"
-        }
-      ]
-    },
-    {
-      "n": "a10",
-      "type": "subprocess",
-      "lane": "rechts",
-      "text": "Ablehnung: Status Abgelehnt, Mail an Antragsteller",
-      "R": "Workflow"
-    },
-    {
-      "n": "11",
-      "type": "activity",
-      "text": "Abschluss: Status Freigegeben, Aufbewahrungslabel setzen, Mail an Antragsteller",
+      "R": "Workflow", "A": "Freigeber" },
+
+    { "n": "4", "type": "decision", "text": "Genehmigt?",
+      "R": "Freigeber", "durchgang_label": "Ja",
+      "routes": [ { "label": "Nein", "to": "abl" } ],
+      "output": "Freigabeverlauf" },
+    { "n": "abl", "type": "subprocess", "lane": "rechts",
+      "text": "Ablehnung, Mail an Antragsteller" },
+
+    { "n": "5", "type": "decision", "text": "Weitere Stufe nötig?",
+      "R": "Workflow", "durchgang_label": "Nein",
+      "routes": [ { "label": "Ja", "to": "3" } ] },
+
+    { "n": "6", "type": "activity",
+      "text": "BANF freigeben und als Datensatz sperren",
       "input": "Purview-Aufbewahrungslabel",
-      "R": "Workflow",
-      "I": [
-        "Antragst.",
-        "Einkauf"
-      ],
-      "output": "BANF als Datensatz gesperrt"
-    },
-    {
-      "n": "12",
-      "type": "activity",
-      "text": "Bestellung beim Lieferanten auslösen",
-      "input": "Freigegebene BANF",
-      "R": "Einkauf",
-      "I": "Antragst.",
-      "output": "Bestellung"
-    },
-    {
-      "n": "13",
-      "type": "activity",
-      "text": "Monatlicher Export und Erfassung in proAlpha",
-      "input": "BANF-Portal, Reiter Export Buchhaltung",
+      "R": "Workflow", "I": ["Antragsteller", "Einkauf"],
+      "output": "Freigegebene BANF" },
+
+    { "n": "7", "type": "activity", "text": "Bestellung beim Lieferanten auslösen",
+      "R": "Einkauf", "I": "Antragsteller",
+      "output": "Bestellung" },
+
+    { "n": "8", "type": "activity", "text": "Monatlicher Export und Erfassung in proAlpha",
+      "input": "BANF-Portal, Export Buchhaltung",
       "R": "SS Acc.",
-      "output": "CSV, Exportprotokoll, Buchung proAlpha"
-    },
-    {
-      "type": "end",
-      "text": "Ende"
-    }
-  ],
-  "legende_rollen": "Antragst. = Antragsteller/in, KST-Verantw. = Kostenstellenverantwortliche/r, BL = Bereichsleitung, GF = Geschäftsführung, Workflow = Power-Automate-Flow, SS Acc. = Buchhaltung"
+      "output": "CSV, Exportprotokoll" },
+
+    { "type": "end", "text": "Ende" }
+  ]
 }
