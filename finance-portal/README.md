@@ -1,77 +1,92 @@
-# banf-portal
+# Finanzportal – Bestellanforderungen (BANF)
 
-## Summary
+Erster Baustein des Finanzportals von VX Instruments: Bestellanforderungen werden in SharePoint bzw. Teams
+erfasst, nach Kostenstelle und Betrag freigegeben und von der Buchhaltung exportiert. Reisekosten und Spesen
+folgen auf derselben Basis.
 
-Short summary on functionality and used technologies.
+| Baustein | Technik | Ort |
+|---|---|---|
+| Oberfläche | SPFx 1.23 Webpart (React, Fluent UI), läuft in SharePoint und als Teams-Tab | `src/` |
+| Fachlogik (Beträge, Freigabeweg, Validierung, CSV) | TypeScript ohne SharePoint-Abhängigkeit, mit Unit-Tests | `src/domain/` |
+| Datenhaltung | SharePoint-Listen, angelegt per PnP PowerShell | `provisioning/` |
+| Workflow | Power Automate mit Approvals-Connector (Teams/Outlook) | `docs/flow-banf-freigabe.md` |
+| Aufbewahrung | Purview-Retention-Label als Datensatz nach Abschluss | `docs/betrieb.md` |
 
-[picture of the solution in action, if possible]
+## Ablauf
 
-## Used SharePoint Framework Version
+```mermaid
+sequenceDiagram
+    actor M as Mitarbeitende
+    participant W as Webpart
+    participant E as Liste BanfEingang
+    participant F as Flow (Dienstkonto)
+    participant B as Liste Bestellanforderungen
+    actor G as Freigeber
+    actor BH as Buchhaltung
 
-![version](https://img.shields.io/badge/version-1.23.2-green.svg)
+    M->>W: BANF erfassen (Vorschau Freigabeweg)
+    W->>E: Eintrag + Anhänge, danach Bereit = Ja
+    E-->>F: Trigger
+    F->>F: Summen nachrechnen, Freigabeweg ermitteln
+    F->>B: BANF anlegen, Rechte je Element setzen
+    F->>E: Eingang löschen
+    loop je Stufe (Vertretung, Vier-Augen)
+        F->>G: Approval (Teams / Outlook)
+        G-->>F: Genehmigt / Abgelehnt
+        F->>B: Status + Verlauf
+    end
+    F->>B: Freigegeben, Retention-Label (gesperrt)
+    F->>M: Mail
+    BH->>W: Export Zeitraum
+    W->>B: freigegebene BANF lesen
+    W-->>BH: CSV (Excel)
+```
 
-## Applies to
+## Sicherheitsprinzipien
 
-- [SharePoint Framework](https://aka.ms/spfx)
-- [Microsoft 365 tenant](https://docs.microsoft.com/sharepoint/dev/spfx/set-up-your-developer-tenant)
+- **Der Client entscheidet nichts.** Das Webpart schreibt nur in die Eingangsliste. Antragsteller, Summen,
+  Freigabeweg und Status setzt der Flow; die Vorschau im Formular ist unverbindlich.
+- **Vier-Augen-Prinzip** wird bei der Ermittlung des Freigabewegs und nach jeder Antwort geprüft (auch bei
+  Neuzuweisung einer Approval-Anfrage).
+- **Need-to-know:** Mitarbeitende sehen nur eigene BANF, Freigeber die ihnen vorgelegten, die Buchhaltung alle.
+- **Unveränderbarkeit:** Abgeschlossene BANF werden per Retention-Label als Datensatz gesperrt.
 
-> Get your own free development tenant by subscribing to [Microsoft 365 developer program](http://aka.ms/o365devprogram)
+## Freigaberegeln
 
-## Prerequisites
+1. Stufe 1: Verantwortlicher der Kostenstelle.
+2. Zusätzliche Stufen ab Netto-Betragsgrenzen (Liste `BanfFreigabestufen`), optional nur für bestimmte Kostenstellen.
+3. Eingetragene Vertretung genehmigt anstelle des Freigebers.
+4. Niemand genehmigt die eigene BANF; entfällt dadurch die höchste Stufe, genehmigt der Rückfall-Freigeber.
+5. Eine Person genehmigt dieselbe BANF nur einmal.
 
-> Any special pre-requisites?
+Die Regeln sind in `src/domain/freigabeweg.ts` dokumentiert und getestet; der Flow bildet sie nach.
 
-## Solution
+## Entwicklung
 
-| Solution    | Author(s)                                               |
-| ----------- | ------------------------------------------------------- |
-| folder name | Author details (name, company, twitter alias with link) |
+Voraussetzung: Node.js 22 (siehe `engines` in `package.json`).
 
-## Version history
+```bash
+npm install
+npm test          # Build + Unit-Tests (heft test)
+npm run build     # Produktions-Build + Paket sharepoint/solution/banf-portal.sppkg
+npm start         # Dev-Server für die gehostete Workbench (https://<tenant>.sharepoint.com/_layouts/15/workbench.aspx)
+```
 
-| Version | Date             | Comments        |
-| ------- | ---------------- | --------------- |
-| 1.1     | March 10, 2021   | Update comment  |
-| 1.0     | January 29, 2021 | Initial release |
+Struktur:
 
-## Disclaimer
+```
+src/domain/          Fachlogik (rein, testbar)
+src/services/        SharePoint-Zugriff (PnPjs), Mapper, Listen-/Feldnamen (schema.ts)
+src/webparts/banfPortal/
+  components/        React-Oberfläche
+provisioning/        Deploy-BanfListen.ps1
+docs/                Flow-Anleitung, Einführung und Betrieb
+```
 
-**THIS CODE IS PROVIDED _AS IS_ WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.**
+Listen- und Feldnamen stehen an drei Stellen und müssen übereinstimmen: `src/services/schema.ts`,
+`provisioning/Deploy-BanfListen.ps1` und der Flow.
 
----
+## Einführung
 
-## Minimal Path to Awesome
-
-- Clone this repository
-- Ensure that you are at the solution folder
-- in the command-line run:
-  - `npm install -g @rushstack/heft`
-  - `npm install`
-  - `heft start`
-
-> Include any additional steps as needed.
-
-Other build commands can be listed using `heft --help`.
-
-## Features
-
-Description of the extension that expands upon high-level summary above.
-
-This extension illustrates the following concepts:
-
-- topic 1
-- topic 2
-- topic 3
-
-> Notice that better pictures and documentation will increase the sample usage and the value you are providing for others. Thanks for your submissions advance.
-
-> Share your web part with others through Microsoft 365 Patterns and Practices program to get visibility and exposure. More details on the community, open-source projects and other activities from http://aka.ms/m365pnp.
-
-## References
-
-- [Getting started with SharePoint Framework](https://docs.microsoft.com/sharepoint/dev/spfx/set-up-your-developer-tenant)
-- [Building for Microsoft teams](https://docs.microsoft.com/sharepoint/dev/spfx/build-for-teams-overview)
-- [Use Microsoft Graph in your solution](https://docs.microsoft.com/sharepoint/dev/spfx/web-parts/get-started/using-microsoft-graph-apis)
-- [Publish SharePoint Framework applications to the Marketplace](https://docs.microsoft.com/sharepoint/dev/spfx/publish-to-marketplace-overview)
-- [Microsoft 365 Patterns and Practices](https://aka.ms/m365pnp) - Guidance, tooling, samples and open-source controls for your Microsoft 365 development
-- [Heft Documentation](https://heft.rushstack.io/)
+Siehe [docs/betrieb.md](docs/betrieb.md) (Reihenfolge, Purview-Label, Teams, laufender Betrieb, Grenzen des MVP)
+und [docs/flow-banf-freigabe.md](docs/flow-banf-freigabe.md) (Flow Schritt für Schritt mit Testfällen).
